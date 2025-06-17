@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Prediction Tool</title>
+  <style>
+    body {
+      background: linear-gradient(to right, #0f0f0f, #1a1a1a);
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 20px;
+    }
+    .box {
+      max-width: 600px;
+      margin: auto;
+      background: #141414;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 0 20px #333;
+    }
+    h2 {
+      text-align: center;
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #00ffaa;
+    }
+    .label { font-weight: bold; margin-top: 10px; }
+    .result {
+      font-size: 22px;
+      margin: 10px 0;
+      text-align: center;
+      background: #222;
+      padding: 10px;
+      border-radius: 10px;
+    }
+    .stat {
+      display: flex;
+      justify-content: space-between;
+      margin: 8px 0;
+      background: #1c1c1c;
+      padding: 8px;
+      border-radius: 8px;
+    }
+    .history-card {
+      background: #202020;
+      margin: 5px 0;
+      padding: 10px;
+      border-left: 5px solid;
+      border-radius: 5px;
+    }
+    .WIN { border-color: #00ff99; }
+    .LOSS { border-color: #ff3b3b; }
+    .PENDING { border-color: #ffe600; }
+  </style>
+</head>
+<body>
+<div class="box">
+  <h2>AI-Based 1-Min Prediction Tool</h2>
+  <div class="label">Period:</div>
+  <div class="result" id="periodDisplay">-</div>
+
+  <div class="label">Prediction:</div>
+  <div class="result" id="predictionDisplay">-</div>
+
+  <div class="label">AI Engine:</div>
+  <div class="result" id="logicExplanation">Neural Engine Active</div>
+
+  <div class="stat"><span>Wins:</span><span id="wins">0</span></div>
+  <div class="stat"><span>Losses:</span><span id="losses">0</span></div>
+  <div class="stat"><span>Accuracy:</span><span id="accuracy">0%</span></div>
+
+  <div class="label">History:</div>
+  <div id="historyContainer"></div>
+</div>
+
+<script>
+let wins = 0;
+let losses = 0;
+let lastPeriod = null;
+const historyData = [];
+const weightMemory = [];
+
+function generatePeriod() {
+  const now = new Date();
+  return now.getFullYear() * 100000 + 10001 + now.getUTCHours() * 60 + now.getUTCMinutes();
+}
+
+function neuralPrediction(period) {
+  const digits = String(period).split('').map(Number);
+  const sum = digits.reduce((a, b) => a + b, 0);
+  const reversed = parseInt(digits.reverse().join(''));
+  const evenOddBalance = digits.filter(d => d % 2 === 0).length - digits.filter(d => d % 2 !== 0).length;
+  const base = ((sum * evenOddBalance + Math.sqrt(sum + reversed)) % 10 + 10) % 10;
+  
+  const trends = weightMemory.slice(0, 5).reduce((acc, v) => acc + (v === 'BIG' ? 1 : -1), 0);
+  const finalScore = (base + trends + Math.sin(sum) * 2 + Math.log(sum)) % 2;
+
+  const result = finalScore >= 1 ? "BIG" : "SMALL";
+  return { result, explain: `Neural logic based on sum=${sum}, trend=${trends}` };
+}
+
+async function fetchResultFromAPI() {
+  try {
+    const res = await fetch("https://api.bdg88zf.com/api/webapi/GetNoaverageEmerdList", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        pageSize: 10, pageNo: 1, typeId: 1, language: 0,
+        random: "4a0522c6ecd8410496260e686be2a57c",
+        signature: "334B5E70A0C9B8918B0B15E517E2069C",
+        timestamp: Math.floor(Date.now() / 1000)
+      })
+    });
+    const json = await res.json();
+    return json?.data?.list?.[0] || null;
+  } catch (e) {
+    console.error("API Error:", e);
+    return null;
+  }
+}
+
+function updateStats() {
+  const total = wins + losses;
+  const accuracy = total > 0 ? ((wins / total) * 100).toFixed(1) : 0;
+  document.getElementById("wins").innerText = wins;
+  document.getElementById("losses").innerText = losses;
+  document.getElementById("accuracy").innerText = `${accuracy}%`;
+}
+
+function updateHistoryDisplay() {
+  const container = document.getElementById("historyContainer");
+  container.innerHTML = "";
+  historyData.forEach(h => {
+    const card = document.createElement("div");
+    card.className = `history-card ${h.status}`;
+    card.innerHTML = `<b>P:</b> ${h.period} | <b>Pred:</b> ${h.prediction} | <b>Result:</b> ${h.result}`;
+    container.appendChild(card);
+  });
+}
+
+async function mainLoop() {
+  const currentPeriod = generatePeriod();
+  const apiData = await fetchResultFromAPI();
+  if (!apiData || apiData.issueNumber === lastPeriod) return;
+
+  const actualNum = parseInt(apiData.number);
+  const actualType = actualNum < 5 ? "SMALL" : "BIG";
+
+  if (historyData[0] && historyData[0].status === "PENDING") {
+    const correct = historyData[0].prediction === actualType;
+    historyData[0].result = actualNum;
+    historyData[0].status = correct ? "WIN" : "LOSS";
+
+    if (correct) wins++;
+    else losses++;
+
+    weightMemory.unshift(actualType);
+    if (weightMemory.length > 10) weightMemory.pop();
+
+    updateStats();
+    updateHistoryDisplay();
+  }
+
+  const { result: prediction } = neuralPrediction(currentPeriod);
+  lastPeriod = apiData.issueNumber;
+
+  document.getElementById("periodDisplay").innerText = currentPeriod;
+  document.getElementById("predictionDisplay").innerText = prediction;
+
+  historyData.unshift({
+    period: currentPeriod,
+    prediction,
+    result: "-",
+    status: "PENDING"
+  });
+
+  updateHistoryDisplay();
+}
+
+setInterval(mainLoop, 6000);
+</script>
+</body>
+</html>
