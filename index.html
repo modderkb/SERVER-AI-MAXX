@@ -1,303 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>KB Key Creator - Hacker Panel</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-  <style>
-    * { box-sizing: border-box; }
-    html, body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Share Tech Mono', monospace;
-      background: black;
-      overflow-x: hidden;
-      color: #00ff00;
-    }
-    canvas#matrix {
-      position: fixed;
-      z-index: -1;
-      top: 0;
-      left: 0;
-    }
-    h1 {
-      text-align: center;
-      color: #00ff00;
-      text-shadow: 0 0 20px #00ff00, 0 0 40px #39ff14;
-      font-size: 2em;
-      margin-bottom: 20px;
-    }
-    .panel {
-      max-width: 600px;
-      margin: auto;
-      padding: 20px;
-      background: rgba(0, 0, 0, 0.85);
-      border: 2px solid #00ff00;
-      border-radius: 10px;
-      box-shadow: 0 0 20px #00ff00;
-      transition: transform 0.3s ease;
-    }
-    .panel:hover {
-      transform: scale(1.05);
-    }
-    input, select, button {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      background: black;
-      border: 1px solid #00ff00;
-      color: #00ff00;
-      border-radius: 6px;
-      font-size: 1em;
-      transition: 0.3s ease;
-    }
-    button:hover {
-      background: #00ff00;
-      color: black;
-      box-shadow: 0 0 10px #00ff00;
-      cursor: pointer;
-    }
-    .telegram {
-      text-align: center;
-      margin-top: 20px;
-    }
-    .telegram a {
-      background: #00ff00;
-      color: black;
-      padding: 10px 20px;
-      border-radius: 6px;
-      text-decoration: none;
-      font-weight: bold;
-      transition: 0.3s;
-    }
-    .telegram a:hover {
-      background: #111;
-      color: #00ff00;
-      border: 1px solid #00ff00;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      padding: 12px;
-      border: 1px solid #00ff00;
-      text-align: center;
-    }
-    .actions button {
-      width: auto;
-      margin: 2px;
-      background: #111;
-    }
-    .actions button:hover {
-      background: red;
-      color: white;
-    }
-    .flex {
-      display: flex;
-      gap: 10px;
-    }
-    #toast {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: black;
-      color: #00ff00;
-      border: 1px solid #00ff00;
-      padding: 10px 20px;
-      border-radius: 8px;
-      display: none;
-      z-index: 999;
-      text-align: center;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Love You Too 💕</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+<style>
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background: radial-gradient(circle at top, #2a003f, #000000 70%);
+    color: white;
+    text-align: center;
+    overflow-x: hidden;
+}
+
+/* Big Romantic Heading */
+h1 {
+    margin-top: 60px;
+    font-size: 4em;
+    font-family: 'Great Vibes', cursive;
+    color: #ffb3ff;
+    animation: glow 2s infinite alternate;
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 15px #ff4da6; }
+    to { text-shadow: 0 0 40px #c084fc; }
+}
+
+/* Message */
+.message {
+    max-width: 850px;
+    margin: 30px auto;
+    font-size: 1.4em;
+    line-height: 1.9em;
+    color: #f5d0fe;
+    padding: 0 20px;
+}
+
+/* Photo Section */
+.gallery {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 40px;
+    margin: 50px 20px;
+}
+
+.gallery img {
+    width: 320px;
+    border-radius: 25px;
+    box-shadow: 0 0 35px #ff4da6;
+    transition: 0.5s ease;
+}
+
+.gallery img:hover {
+    transform: scale(1.1);
+}
+
+/* Floating Hearts */
+.heart {
+    position: fixed;
+    color: #ff4da6;
+    font-size: 20px;
+    animation: floatUp 6s linear infinite;
+}
+
+@keyframes floatUp {
+    0% { transform: translateY(0); opacity:1; }
+    100% { transform: translateY(-900px); opacity:0; }
+}
+</style>
 </head>
+
 <body>
-  <canvas id="matrix"></canvas>
-  <h1>💀 KB KEY CREATOR 💀</h1>
 
-  <div class="panel">
-    <div class="flex">
-      <input type="text" id="keyInput" placeholder="Enter Key..." />
-      <button onclick="generateAutoKey()">🎲</button>
-    </div>
-    <select id="durationSelect">
-      <option value="30min">30 Minutes</option>
-      <option value="1day">1 Day</option>
-      <option value="3day">3 Days</option>
-      <option value="7day">7 Days</option>
-      <option value="30day">30 Days</option>
-      <option value="never">Never Expire</option>
-    </select>
-    <button onclick="createKey()">🚀 Create Key</button>
+<h1>Love You Too My Cutie Pie 💕✨</h1>
 
-    <div class="telegram">
-      <a href="https://t.me/desibillal1" target="_blank">Join Telegram 🧨</a>
-    </div>
+<div class="message">
+    From the first moment I saw you, something magical happened inside my heart.  
+    Your smile lights up my darkest days, your eyes hold a universe of beauty,  
+    and your cute wink makes my heart skip a beat every single time. 💖  
 
-    <h3>Key History 💾</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Key</th>
-          <th>Expires</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="keyHistory"></tbody>
-    </table>
-  </div>
+    <br><br>
 
-  <div id="toast"></div>
+    You are not just beautiful…  
+    you are my peace, my happiness, my dream come true. 🌙  
 
-  <script>
-    const canvas = document.getElementById("matrix");
-    const ctx = canvas.getContext("2d");
-    canvas.height = window.innerHeight;
-    canvas.width = window.innerWidth;
-    let chars = "01";
-    chars = chars.split("");
-    let fontSize = 14;
-    let columns = canvas.width / fontSize;
-    let drops = [];
-    for (let x = 0; x < columns; x++) drops[x] = 1;
+    If love had a face, it would look exactly like you.  
+    And no matter what happens in this world,  
+    my heart will always whisper the same words —  
 
-    function drawMatrix() {
-      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#0f0";
-      ctx.font = fontSize + "px monospace";
-      for (let i = 0; i < drops.length; i++) {
-        let text = chars[Math.floor(Math.random() * chars.length)];
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
-        drops[i]++;
-      }
-    }
-    setInterval(drawMatrix, 33);
+    <br><br>
 
-    // Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyD3aJRd5JO9LCmKHI2xy98TBRPrun8YtEc",
-      authDomain: "kbdon.firebaseapp.com",
-      databaseURL: "https://kbdon-64614-default-rtdb.firebaseio.com",
-      projectId: "kbdon-64614",
-      storageBucket: "",
-      appId: "1:846563945284:android:0f63e0bf8403fa9faac511"
-    };     
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    <strong>Forever yours. Always yours. Only yours. 💍💞</strong>
+</div>
 
-    function showToast(msg) {
-      const toast = document.getElementById("toast");
-      toast.innerText = msg;
-      toast.style.display = "block";
-      setTimeout(() => { toast.style.display = "none"; }, 3000);
-    }
+<div class="gallery">
+    <!-- Replace with your real image URLs -->
+    <img src="https://image2url.com/r2/default/images/1771007213881-20fe7bb1-fb5c-4dfc-a4bb-6a4c90cc0835.jpg" alt="Her Beautiful Smile">
+    <img src="https://image2url.com/r2/default/images/1771007264288-8aec5431-1e35-4caa-97b8-d18616b277ff.jpg" alt="Her Cute Look">
+</div>
 
-    function createKey() {
-      const key = document.getElementById("keyInput").value.trim();
-      const duration = document.getElementById("durationSelect").value;
-      if (!key) return showToast("❌ Enter a valid key!");
-      
-      db.ref("keys/" + key).once("value").then(snapshot => {
-        if (snapshot.exists()) return showToast("⚠️ Key already exists!");
-        
-        const createdAt = Date.now();
-        let expiresAt = null;
+<script>
+/* Floating Hearts Animation */
+setInterval(() => {
+    let heart = document.createElement('div');
+    heart.className = 'heart';
+    heart.innerHTML = '❤️';
+    heart.style.left = Math.random() * window.innerWidth + 'px';
+    heart.style.top = window.innerHeight + 'px';
+    heart.style.fontSize = (Math.random() * 25 + 15) + 'px';
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 6000);
+}, 600);
+</script>
 
-        switch (duration) {
-          case "30min": expiresAt = createdAt + 30 * 60 * 1000; break;
-          case "1day": expiresAt = createdAt + 1 * 24 * 60 * 60 * 1000; break;
-          case "3day": expiresAt = createdAt + 3 * 24 * 60 * 60 * 1000; break;
-          case "7day": expiresAt = createdAt + 7 * 24 * 60 * 60 * 1000; break;
-          case "30day": expiresAt = createdAt + 30 * 24 * 60 * 60 * 1000; break;
-          case "never": expiresAt = "never"; break;
-        }
-
-        db.ref("keys/" + key).set({ key, duration, createdAt, expiresAt }).then(() => {
-          showToast("✅ Key Created");
-          document.getElementById("keyInput").value = "";
-          loadKeys();
-        });
-      });
-    }
-
-    function generateAutoKey() {
-      const duration = document.getElementById("durationSelect").value;
-      const durationLabel = duration.toUpperCase();
-      const randomPart = Math.floor(10000 + Math.random() * 90000);
-      const autoKey = `KB-${durationLabel}-${randomPart}`;
-      
-      db.ref("keys/" + autoKey).once("value").then(snapshot => {
-        if (snapshot.exists()) {
-          showToast("⚠️ Duplicate key! Try again.");
-        } else {
-          const createdAt = Date.now();
-          let expiresAt = null;
-          switch (duration) {
-            case "30min": expiresAt = createdAt + 30 * 60 * 1000; break;
-            case "1day": expiresAt = createdAt + 1 * 24 * 60 * 60 * 1000; break;
-            case "3day": expiresAt = createdAt + 3 * 24 * 60 * 60 * 1000; break;
-            case "7day": expiresAt = createdAt + 7 * 24 * 60 * 60 * 1000; break;
-            case "30day": expiresAt = createdAt + 30 * 24 * 60 * 60 * 1000; break;
-            case "never": expiresAt = "never"; break;
-          }
-
-          db.ref("keys/" + autoKey).set({ key: autoKey, duration, createdAt, expiresAt }).then(() => {
-            document.getElementById("keyInput").value = autoKey;
-            showToast("✅ Auto Key Created: " + autoKey);
-            loadKeys();
-          });
-        }
-      });
-    }
-
-    function loadKeys() {
-      db.ref("keys").once("value", snapshot => {
-        const table = document.getElementById("keyHistory");
-        table.innerHTML = "";
-        snapshot.forEach(child => {
-          const data = child.val();
-          const row = document.createElement("tr");
-          const expires = data.expiresAt === "never" ? "Never" : new Date(data.expiresAt).toLocaleString();
-          row.innerHTML = `
-            <td>${data.key}</td>
-            <td>${expires}</td>
-            <td class="actions">
-              <button onclick="deleteKey('${data.key}')">🗑️</button>
-              <button onclick="resetKey('${data.key}')">♻️</button>
-            </td>
-          `;
-          table.appendChild(row);
-        });
-      });
-    }
-
-    function deleteKey(key) {
-      if (confirm("Delete this key?")) {
-        db.ref("keys/" + key).remove().then(() => {
-          showToast("🗑️ Key Deleted");
-          loadKeys();
-        });
-      }
-    }
-
-    function resetKey(key) {
-      if (confirm("Reset this key to never expire?")) {
-        db.ref("keys/" + key).update({ expiresAt: "never" }).then(() => {
-          showToast("♻️ Key Reset");
-          loadKeys();
-        });
-      }
-    }
-
-    loadKeys();
-  </script>
 </body>
 </html>
